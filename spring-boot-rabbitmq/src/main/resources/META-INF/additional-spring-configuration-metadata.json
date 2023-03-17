@@ -1,0 +1,62 @@
+{"properties": [
+  {
+    "name": "queue.order.cancel",
+    "type": "java.lang.String",
+    "description": "A description for 'queue.order.cancel'"
+  },
+  {
+    "name": "queue.order.complete",
+    "type": "java.lang.String",
+    "description": "A description for 'queue.order.complete'"
+  },
+  {
+    "name": "queue.order.process",
+    "type": "java.lang.String",
+    "description": "A description for 'queue.order.process'"
+  },
+  {
+    "name": "direct.order.exchange",
+    "type": "java.lang.String",
+    "description": "A description for 'direct.order.exchange'"
+  },
+  {
+    "name": "topic.order.exchange",
+    "type": "java.lang.String",
+    "description": "A description for 'topic.order.exchange'"
+  },
+  {
+    "name": "fanout.order.exchange",
+    "type": "java.lang.String",
+    "description": "A description for 'fanout.order.exchange'"
+  },
+  {
+    "name": "key.order.cancel",
+    "type": "java.lang.String",
+    "description": "A description for 'key.order.cancel'"
+  },
+  {
+    "name": "key.order.process",
+    "type": "java.lang.String",
+    "description": "A description for 'key.order.process'"
+  },
+  {
+    "name": "key.order.complete",
+    "type": "java.lang.String",
+    "description": "A description for 'key.order.complete'"
+  },
+  {
+    "name": "key.order",
+    "type": "java.lang.String",
+    "description": "A description for 'key.order'"
+  },
+  {
+    "name": "previous.key.order",
+    "type": "java.lang.String",
+    "description": "A description for 'previous.key.order'"
+  },
+  {
+    "name": "prev.key.order",
+    "type": "java.lang.String",
+    "description": "A description for 'prev.key.order'"
+  }
+]}

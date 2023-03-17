@@ -1,0 +1,35 @@
+
+#login-button-div{
+    align-items: center;
+    text-align: center;
+}
+#login-button{
+    align-items: center;
+    text-align: center;
+    width: 200px
+}
+#users-table{
+    align-items: center;
+    text-align: center;
+    margin-top: 30px;
+}
+#update-user{
+    display: flex;
+    justify-content: end;
+    align-items: right;
+    margin-left: 700px;
+}
+
+th, td {
+    padding: 8px;
+    border: 1px solid blue;
+}
+#welcome-msg{
+    align-items: center;
+    text-align: center;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    color:blue;
+    margin-left: 100px;
+}
