@@ -4,11 +4,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.sql.DataSource;
-
-import com.hazelsoft.springsecurityjpa.dto.*;
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
+import com.hazelsoft.springsecurityjpa.model.*;
+import com.hazelsoft.springsecurityjpa.rabbitmq.Publisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,12 +19,10 @@ import com.hazelsoft.springsecurityjpa.repo.RoleRepo;
 import com.hazelsoft.springsecurityjpa.repo.UserRepo;
 
 @Service
-public class AuthService implements HealthIndicator {
+public class AuthService {
 
 	private AuthenticationManager authenticationManager;
-	
-	private DataSource datasource;
-	
+
 	private UserRepo repository;
 	
 	private MyUserDetails userDetails;
@@ -38,19 +33,21 @@ public class AuthService implements HealthIndicator {
 	
 	private RoleRepo roleRepository;
 
-	public AuthService(AuthenticationManager authenticationManager, DataSource datasource, 
-			UserRepo repository, RoleRepo roleRepository, MyUserDetails userDetails, 
-			JwtService jwtService, PasswordEncoder passwordEncoder) {
+	private Publisher publisher;
+
+	public AuthService(AuthenticationManager authenticationManager,
+					   UserRepo repository, RoleRepo roleRepository, MyUserDetails userDetails,
+					   JwtService jwtService, PasswordEncoder passwordEncoder, Publisher publisher) {
 		this.authenticationManager = authenticationManager;
-		this.datasource = datasource;
 		this.repository = repository;
 		this.roleRepository = roleRepository;
 		this.userDetails = userDetails;
 		this.jwtService = jwtService;
 		this.passwordEncoder = passwordEncoder;
+		this.publisher = publisher;
 	}
 
-	public AuthResponse register(SignupRequest request) throws SQLException, Exception{
+	public AuthResponse register(SignupRequest request) throws  Exception{
 		String jwt = null;
 		User savedUser = null;
 		User user = new User();
@@ -75,6 +72,8 @@ public class AuthService implements HealthIndicator {
 
 		savedUser = repository.save(user);
 		if(savedUser!=null) {
+			publisher.saveActivityAudit("User saved successfully  with user name "
+					+ savedUser.getUserName());
 			for (Role role : savedUser.getRoles()) {
 				roleNameList.add(role.getName());
 			}
@@ -102,26 +101,13 @@ public class AuthService implements HealthIndicator {
 
 		user = repository.findByUserName(request.getUserName());
 		userRoles = repository.getUserRoles(user.getId());
-
+		publisher.saveActivityAudit("User logged-in successfully  with user name "
+				+ user.getUserName());
 		jwt = jwtService.generateToken(userDetails.mapUserToUserDetails(user, userRoles));
 		for (Role role : userRoles) {
 			roleNameList.add(role.getName());
 		}
 		return new AuthResponse(jwt, user.getUserName(), roleNameList);
-	}
-
-	@Override
-	public Health health() {
-		try {
-			if (datasource.getConnection().isValid(1000)) {
-				return Health.up().withDetail(AuthService.class.toString(), "is running as data ")
-						.build();
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return Health.down().withDetail(AuthService.class.toString(), "is down").build();
 	}
 
 }

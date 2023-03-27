@@ -1,0 +1,16 @@
+const SUCCESS = 'SUCCESS';
+const ERROR = 'ERROR';
+const LOGIN_PAGE = './Login.html';
+const ERR_MSG = 'Error Occurred';
+const UPDATE_USR = 'user/update';
+const GET_USR = 'user';
+const JWT_TOKEN = 'jwtToken';
+const ADMIN_PAGE ='./admin.html';
+const USR_PAGE = './users.html';
+const LOGIN = 'login';
+const USR_ADMIN = 'ROLE_ADMIN';
+const GET_USERS = 'admin';
+const GET_ROLES = 'admin/roles';
+const ADD_USR = 'admin/addUser';
+const REMOVE_USR = 'admin/removeUser';
+const ROLE = 'ROLE_'

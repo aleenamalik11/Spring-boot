@@ -1,9 +1,23 @@
 package com.hazelsoft.springsecurityjpa.controller;
 
-import com.hazelsoft.springsecurityjpa.dto.RequestResponse;
-import com.hazelsoft.springsecurityjpa.dto.Status;
+import com.hazelsoft.springsecurityjpa.model.RequestResponse;
+import com.hazelsoft.springsecurityjpa.enums.Status;
 
-public interface BaseController {
-    public RequestResponse prepareResponse(Object payload, Object errors, String msg, Status status);
-    public void saveActivityAudit(String details);
+public abstract class BaseController<T, W>{
+
+    private RequestResponse requestResponse;
+
+    protected BaseController(RequestResponse requestResponse){
+        this.requestResponse = requestResponse;
+    }
+
+    protected RequestResponse prepareResponse(T payload, W errors, String msg, Status status) {
+        requestResponse.setErrors(errors);
+        requestResponse.setMessage(msg);
+        requestResponse.setPayload(payload);
+        requestResponse.setStatus(status);
+
+        return requestResponse;
+    }
+
 }
