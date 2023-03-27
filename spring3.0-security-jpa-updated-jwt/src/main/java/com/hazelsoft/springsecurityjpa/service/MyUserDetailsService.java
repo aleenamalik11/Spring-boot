@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.hazelsoft.springsecurityjpa.entity.Role;
 import com.hazelsoft.springsecurityjpa.entity.User;
-import com.hazelsoft.springsecurityjpa.dto.MyUserDetails;
+import com.hazelsoft.springsecurityjpa.model.MyUserDetails;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {

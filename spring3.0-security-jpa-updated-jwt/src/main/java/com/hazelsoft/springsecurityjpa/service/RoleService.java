@@ -33,6 +33,6 @@ public class RoleService {
 
     public List<String> getAllRoles(){
         List<Role> roles = roleRepository.findAll();
-        return roles.stream().map((Role role) -> new String(role.getName())).collect(Collectors.toList());
+        return roles.stream().map(role -> new String(role.getName())).toList();
     }
 }

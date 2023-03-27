@@ -3,33 +3,57 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Users Table</title>
+
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href=" C://Users/Pc/eclipse-workspace/style.css">
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-  <!-- Link to the DataTables CSS and JavaScript files -->
-  <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css">
-  
-  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
-
 </head>
 <body>
-	<div class="container mt-5">	
-
-		<div class="row" id="welcome-msg">
-			<h1> Welcome User!</h1>
-			
-		</div>
-
-
-		<div class="row pt-5">
-      <div class="col-3">
-        <input type="text" class="form-control mb-3" id="searchInput" placeholder="Search..."  oninput="filterTableRows(event)">
+  
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link</a>
+        </li>
+      </ul>
+      <div class="col-5" id="welcome-msg">
+        <p >Welcome Admin</p>
       </div>
-      <div class="col" style="align-items: right;">
-      <button class="btn btn-primary float-right" style="margin-left: 500px;" id="update-user"  data-toggle="modal" data-target="#myModal" onclick="showForm()">
-				Update Profile</button></div>
-		<table class="table mt-5" id="users-table">
+      <div class="col my-2 my-lg-0" style="margin-left: 70px;">
+        <input type="text" class="form-control mr-sm-2" id="searchInput" placeholder="Search...">        
+      </div>
+      <div class="col my-2 my-lg-0">
+        <button class="btn btn-outline-success my-2 my-sm-0" id="searchButton" onclick="filterTableRows()">Search</button>   
+      </div>       
+    </div>
+  </nav>
+
+
+  <div class="container mt-5">
+    <div class="row justify-content-end">
+          <div class="col-2">
+            <button id="admin-button" class="btn btn-primary float-right" data-toggle="modal" data-target="#addUserModal" onclick="showAddUserForm()">Add User</button>
+          </div>
+          <div class="col-2">
+            <button id="admin-button-remove" class="btn btn-primary float-right" data-toggle="modal" data-target="#removeUserModal"> Remove User</button>
+          </div>
+    </div>
+  </div>
+ 
+	<div class="container mt-1">
+		<div class="row pt-5">
+		<table class="table table-hover caption-top table-responsive-sm mt-5" id="users-table">
+      <caption>List of users</caption>
 			<thead>
 				<tr>
           <th>User ID</th>
@@ -38,7 +62,7 @@
 					<th>City</th>
 				</tr>
 			</thead>
-			<tbody>
+			<tbody class="table-group-divider">
 			</tbody>
 		</table>
 	</div>	
@@ -101,294 +125,44 @@
       </div>
 
 
-    <button id="admin-button"  data-toggle="modal" data-target="#addUserModal" onclick="showAddUserForm()">Add User</button>
-    <button id="admin-button-remove" data-toggle="modal" data-target="#removeUserModal"> Remove User</button>
+      <div class="modal fade" id="edit-user" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Edit User Profile</h5>
+            <form id="update-form">
+              <div class="form-group">
+                <label for="userName">User Name:</label>
+                <input type="text" class="form-control" id="userName">
+              </div>
+              <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name">
+              </div>
+              <div class="form-group">
+                <label for="city">Name:</label>
+                <input type="text" class="form-control" id="city">
+              </div>
+              </form>
+          </div>
+          
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="closeForm(event)">Close</button>
+            <button type="button" class="btn btn-primary"  id="update-user-submit" onclick="editUser(event)">Save changes</button>
+          </div>
+          </div>
+        </div>
+        </div>
 
 
     <!-- Pagination bar -->
-<nav aria-label="Page navigation example">
-  <ul class="pagination justify-content-end" id="list"> 
-    
+<nav aria-label="Page navigation example" id="pagination-bar">
+  <ul class="pagination justify-content-end" id="list">     
   </ul>
 </nav>
-	<script>
-       
-        const addUserBtn = document.getElementById('admin-button');
-        const removeUserBtn = document.getElementById('admin-button-remove');
-        const tableBody = document.querySelector('#users-table tbody');
-        var rolesList;
-        var totalNumOfPages;
-        var CurrPageNo=0;
-        const pageSize = 5;
-        var flag = true;
-       
-       const token = localStorage.getItem('jwtToken');
-        //const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJudSIsImV4cCI6MTY3ODExMTY2OSwiaWF0IjoxNjc4MTEwMjI5fQ.L8GN1G6wY72xcfdVzllsv4TxwrUHEjyDMz2CLCcz2SY";
-        console.log(token);
-        
-       
-       
-        displayAllUsers(CurrPageNo, pageSize);
-        fetchAllRoles(); 
 
-        function createPaginationLinks(numOfPages) {
-          const container = document.querySelector('#list');
-
-          // Clear any existing pagination links
-          container.innerHTML = '';
-
-          // Generate new pagination links
-          for (let i = 0; i < numOfPages; i++) {
-            const listItem = document.createElement('li');
-            const link = document.createElement('a');
-            link.classList.add('page-link');
-            link.textContent = i;
-            link.id = 'page-' + i;
-            link.onclick = function(){
-              setPageNo(this.textContent);
-            }
-            listItem.classList.add('page-item');
-            listItem.appendChild(link);
-            container.appendChild(listItem);
-          }
-        }
-
-
-        function setPageNo(content){
-
-          var table = document.getElementById("users-table");
-          var tbody = table.getElementsByTagName("tbody")[0];
-          console.log(content);
-          var page = content;
-          // Loop through all rows and remove them
-          var numRows = tbody.rows.length;
-          for (var i = 0; i < numRows; i++) {
-            tbody.deleteRow(0);
-          }
-          
-          CurrPageNo=page;
-          console.log("CurrPageNo" + CurrPageNo);
-          displayAllUsers(CurrPageNo, pageSize);
-        }
-
-
-        function filterTableRows(event){
-          event.preventDefault();
-          var rows = document.getElementById('users-table').getElementsByTagName('tr');
-          var searchQuery = document.getElementById('searchInput').value.toLowerCase();
-          console.log(searchQuery);
-          
-          for (var i = 0; i < rows.length; i++) {
-            var username = rows[i].getElementsByTagName('td')[1];
-            console.log(username);
-            if (username) {
-              if (username.textContent.toLowerCase().includes(searchQuery)) {
-                rows[i].style.display = '';
-              } else {
-                rows[i].style.display = 'none';
-              }
-            }
-          }
-        }
-
-        function fetchAllRoles(){
-            fetch('http://localhost:8080/admin/roles', {
-            method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                })
-                .then(response => response.json())
-                .then(data => {
-                // Handle response from backend
-                        console.log(data);
-                        rolesList = data.payload;
-                        console.log(rolesList);
-					})
-					.catch(error => {
-					// Handle error
-					    console.error(error);
-					});
-        }
-
-        function displayAllUsers(CurrPageNo, pageSize){
-
-          const displayUserData = {
-                  page: CurrPageNo, 
-                  size: pageSize
-                };
-                console.log(typeof CurrPageNo);
-            // DISPLAY USER DATA IN TABLE
-            fetch('http://localhost:8080/admin', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify(displayUserData)
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Create a new row for each user and add it to the table
-                if(data.status === 'ERROR'){
-                    console.log(data.message);
-                    alert(data.message);
-                }
-                else{
-                  console.log(data.payload.content);
-                  
-                  //console.log("res " + res);
-                      if(data.payload.content){
-                        data.payload.content.forEach(user => {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${user.id}</td>
-                                <td>${user.name}</td>
-                                <td>${user.userName}</td>
-                                <td>${user.city}</td>
-                            `;
-                            tableBody.appendChild(row);
-                        });
-                      }
-                      
-                }
-                res= data.payload.totalPages;  
-                if(flag == true){
-                  createPaginationLinks(res);
-                  flag = false;                  
-                }
-                
-                
-            })
-            .catch(error => console.error(error));
-            
-        }
-
-        
-        function showAddUserForm(){
-
-            var myModal = document.getElementById("addUserModal");
-
-            console.log(rolesList);
-            var rolesSelect = document.getElementById("rolesSelect");      
-           
-            rolesList.forEach(role => {
-                console.log(role);
-                var option = document.createElement("option");
-                option.text = role.split("_")[1];
-                rolesSelect.add(option);
-            })
-            
-           
-            myModal.style.display = "block"; 
-        }
-
-        function closeAddUserForm(){
-          var modal = document.getElementById("addUserModal");
-          modal.style.display = "none";
-          location.reload();
-        }
-
-        function closeRemoveUserForm(){
-          var modal = document.getElementById("removeUserModal");
-          modal.style.display = "none";
-          location.reload();
-        }
-
-        function addUser(event){
-            event.preventDefault(); // Prevent default form submission
-            var form = document.getElementById("add-user-form");     
-            var fuserName =  document.getElementById("userName").value;
-            var fname = document.getElementById("name").value;
-            var fpassword=document.getElementById("password").value;
-            var fcity = document.getElementById("city").value;
-            const select = document.getElementById('rolesSelect');
-            var froles = Array.from(select.options).filter(option => option.selected).map(option => "ROLE_" + option.value);           
-            
-
-            console.log(froles);
-
-            const userData = {
-                name: fname,
-                userName: fuserName,
-                password: fpassword,
-                city: fcity,
-                roles: froles
-                };
-
-                console.log(userData);
-                
-                fetch('http://localhost:8080/admin/addUser', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(userData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                // Handle response from backend
-                console.log(data);
-                if(data.status==='SUCCESS'){
-                    const newRow = document.createElement('tr');
-                                newRow.innerHTML = `
-                                    <td>${data.id}</td>
-                                    <td>${data.userName}</td>
-                                    <td>${data.city}</td>
-                                `;
-                                tableBody.appendChild(newRow);
-                }else{
-                    console.log(data.message);
-                    alert(data.message);
-                }
-                location.reload()
-                })
-                .catch(error => {
-                // Handle error
-                console.error(error);
-                alert(error);
-                });
-        }
-
-        function removeUser(event){
-            event.preventDefault(); // Prevent default form submission
-                var fuserId =  document.getElementById("userId").value;
-                const removeUserData = {
-                    userId: fuserId
-                };
-
-                console.log(removeUserData);
-                console.log(token);
-                
-                fetch('http://localhost:8080/admin/removeUser', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(removeUserData)
-                })
-                .then(response => response.json())
-                .then(data => {
-                // Handle response from backend
-                console.log(data);
-                location.reload()
-					})
-					.catch(error => {
-					// Handle error
-					console.error(error);
-					});
-				
-
-        }
-      
-
-
-       
-
-		
-	</script>
+<script src="./fetchData.js" type="text/JavaScript"></script>
+<script src="./constants.js" type="text/JavaScript"></script>
+<script src="./admin.js" type="text/JavaScript"></script>
 </body>
 </html>

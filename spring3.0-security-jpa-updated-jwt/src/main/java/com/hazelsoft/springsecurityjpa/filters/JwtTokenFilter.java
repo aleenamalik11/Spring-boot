@@ -2,7 +2,8 @@ package com.hazelsoft.springsecurityjpa.filters;
 
 import java.io.IOException;
 
-import com.hazelsoft.springsecurityjpa.dto.Status;
+import com.hazelsoft.springsecurityjpa.exception.CustomException;
+import com.hazelsoft.springsecurityjpa.exception.RestResponseExceptionResolver;
 import io.jsonwebtoken.SignatureException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,7 +14,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hazelsoft.springsecurityjpa.dto.RequestResponse;
 import com.hazelsoft.springsecurityjpa.service.JwtService;
 import com.hazelsoft.springsecurityjpa.service.MyUserDetailsService;
 
@@ -32,11 +32,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 	
 	private ObjectMapper objectMapper;
 
-	public JwtTokenFilter(MyUserDetailsService userDetailsService, JwtService jwtService, 
-			ObjectMapper objectMapper) {
+	private RestResponseExceptionResolver exceptionResolver;
+
+	public JwtTokenFilter(MyUserDetailsService userDetailsService, JwtService jwtService,
+						  ObjectMapper objectMapper, RestResponseExceptionResolver exceptionResolver) {
 		this.userDetailsService = userDetailsService;
 		this.jwtService = jwtService;
 		this.objectMapper = objectMapper;
+		this.exceptionResolver = exceptionResolver;
 	}
 
 	@Override
@@ -65,28 +68,15 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 		}
 			filterChain.doFilter(request, response);
 
-		} catch (ExpiredJwtException e) {
-			logger.warn("the token is expired and not valid anymore", e);
-			RequestResponse errorResponse = new RequestResponse(Status.ERROR,
-					"the token is expired and not valid anymore", null, e);
-			response.setContentType("application/json");
-			response.setStatus(403);
-			response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
-		} catch(SignatureException e){
-			logger.warn("Invalid token", e);
-			RequestResponse errorResponse = new RequestResponse(Status.ERROR,
-					"Invalid token", null, e);
-			response.setContentType("application/json");
-			response.setStatus(403);
-			response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+		} catch (ExpiredJwtException ex) {
+			exceptionResolver.resolveException((HttpServletRequest) request, (HttpServletResponse) response, null, ex);
+
+		} catch(SignatureException ex){
+			exceptionResolver.resolveException((HttpServletRequest) request, (HttpServletResponse) response, null, ex);
 		}
-		catch (Exception e) {
-			logger.warn("Error occurred while authentication", e);
-			RequestResponse errorResponse = new RequestResponse(Status.ERROR,
-					"Error occurred while authentication", null, e);
-			response.setContentType("application/json");
-			response.setStatus(403);
-			response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
+		catch (Exception ex) {
+			exceptionResolver.resolveException((HttpServletRequest) request, (HttpServletResponse) response, null,
+					(CustomException) ex);
 		}
 	}
 
